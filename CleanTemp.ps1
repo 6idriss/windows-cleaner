@@ -9,7 +9,7 @@
 
 param([switch]$Auto)
 
-$AppVersion = '2.0.0'
+$AppVersion = '2.1.0'
 $TaskName   = 'CleanTemp Weekly'
 
 # ---------- Self-elevate to admin ----------
@@ -207,31 +207,47 @@ $cRed    = [System.Drawing.Color]::FromArgb(214, 40, 40)
 $cGreen  = [System.Drawing.Color]::FromArgb(90, 200, 120)
 
 function New-LogoBitmap([int]$size) {
+    # 007 "Sweep gauge" logo: dark rounded tile, red 270-degree ring, white 007.
+    $s = [single]$size
     $bmp = New-Object System.Drawing.Bitmap $size, $size
     $g = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
-    $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
-    $pad = [math]::Max(1, [int]($size * 0.04)); $rad = [int]($size * 0.22); $w = $size - 2 * $pad - 1
-    $path = New-Object System.Drawing.Drawing2D.GraphicsPath
-    $path.AddArc($pad, $pad, $rad, $rad, 180, 90)
-    $path.AddArc($pad + $w - $rad, $pad, $rad, $rad, 270, 90)
-    $path.AddArc($pad + $w - $rad, $pad + $w - $rad, $rad, $rad, 0, 90)
-    $path.AddArc($pad, $pad + $w - $rad, $rad, $rad, 90, 90)
-    $path.CloseFigure()
-    $g.FillPath((New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(17, 17, 17))), $path)
-    $g.DrawPath((New-Object System.Drawing.Pen $cRed, ([math]::Max(1, $size * 0.045))), $path)
-    $fontName = 'Segoe UI Black'
-    if (-not ((New-Object System.Drawing.Text.InstalledFontCollection).Families.Name -contains $fontName)) { $fontName = 'Arial Black' }
-    $em = $size * 0.42
-    do {
-        $font = New-Object System.Drawing.Font $fontName, $em, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
-        $m = $g.MeasureString('007', $font); $em -= $size * 0.01
-    } while ($m.Width -gt $size * 0.84 -and $em -gt 4)
-    $sf = New-Object System.Drawing.StringFormat
-    $sf.Alignment = [System.Drawing.StringAlignment]::Center; $sf.LineAlignment = [System.Drawing.StringAlignment]::Center
-    $g.DrawString('007', $font, [System.Drawing.Brushes]::White, (New-Object System.Drawing.RectangleF 0, (-$size * 0.05), $size, $size), $sf)
-    $barW = $size * 0.46
-    $g.FillRectangle((New-Object System.Drawing.SolidBrush $cRed), ($size - $barW) / 2, $size * 0.7, $barW, [math]::Max(1, $size * 0.055))
+    $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+    $red = [System.Drawing.Color]::FromArgb(232, 52, 52)
+
+    # Rounded tile with a dark gradient
+    $x = $s * 0.03; $w = $s - 2 * $x; $r = $s * 0.46
+    $tile = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $tile.AddArc($x, $x, $r, $r, 180, 90); $tile.AddArc($x + $w - $r, $x, $r, $r, 270, 90)
+    $tile.AddArc($x + $w - $r, $x + $w - $r, $r, $r, 0, 90); $tile.AddArc($x, $x + $w - $r, $r, $r, 90, 90)
+    $tile.CloseFigure()
+    $bg = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF 0, 0, $s, $s), ([System.Drawing.Color]::FromArgb(34, 34, 38)), ([System.Drawing.Color]::FromArgb(12, 12, 14)), ([single]90)
+    $g.FillPath($bg, $tile)
+
+    # Gauge ring: faint track plus red sweep
+    $c = $s * 0.5; $rr = $s * 0.3; $pw = [math]::Max(1.5, $s * 0.05)
+    $track = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(25, 255, 255, 255)), ([single]$pw)
+    $sweep = New-Object System.Drawing.Pen $red, ([single]$pw)
+    foreach ($p in $track, $sweep) { $p.StartCap = 'Round'; $p.EndCap = 'Round' }
+    $g.DrawArc($track, $c - $rr, $c - $rr, 2 * $rr, 2 * $rr, 135, 270)
+    $g.DrawArc($sweep, $c - $rr, $c - $rr, 2 * $rr, 2 * $rr, 135, 200)
+
+    # "007" as a path, scaled to fit inside the ring
+    $fams = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
+    $fam = if ($fams -contains 'Bahnschrift') { 'Bahnschrift' } elseif ($fams -contains 'Segoe UI') { 'Segoe UI' } else { 'Arial' }
+    $tp = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $tp.AddString('007', (New-Object System.Drawing.FontFamily $fam), [int][System.Drawing.FontStyle]::Bold, 100, (New-Object System.Drawing.PointF 0, 0), [System.Drawing.StringFormat]::GenericTypographic)
+    $b = $tp.GetBounds(); $k = [math]::Min(($s * 0.4) / $b.Width, ($s * 0.2) / $b.Height)
+    $m = New-Object System.Drawing.Drawing2D.Matrix
+    $m.Translate($c, $c); $m.Scale($k, $k); $m.Translate(-($b.X + $b.Width / 2), -($b.Y + $b.Height / 2))
+    $tp.Transform($m)
+    $g.FillPath([System.Drawing.Brushes]::White, $tp)
+
+    # Soft top highlight
+    $g.SetClip($tile)
+    $gl = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF 0, 0, $s, ($s * 0.5)), ([System.Drawing.Color]::FromArgb(22, 255, 255, 255)), ([System.Drawing.Color]::FromArgb(0, 255, 255, 255)), ([single]90)
+    $g.FillRectangle($gl, 0, 0, $s, $s * 0.5)
+    $g.ResetClip()
     $g.Dispose()
     return $bmp
 }
