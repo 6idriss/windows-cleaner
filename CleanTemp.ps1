@@ -109,10 +109,10 @@ Clear-Target 'Font cache'             @("$env:SystemRoot\ServiceProfiles\LocalSe
 
 # Windows Update download cache: services must be stopped first.
 Write-Host '  (stopping Windows Update services...)' -ForegroundColor DarkGray
-Stop-Service wuauserv, bits, dosvc -Force -ErrorAction SilentlyContinue
+Stop-Service wuauserv, bits, dosvc -Force -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 Clear-Target 'Windows Update downloads' @("$env:SystemRoot\SoftwareDistribution\Download")
 Clear-Target 'Delivery Optimization'    @("$env:SystemRoot\ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization\Cache")
-Start-Service wuauserv, bits, dosvc -ErrorAction SilentlyContinue
+Start-Service wuauserv, bits, dosvc -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
 # ---------- Graphics shader caches (rebuilt automatically) ----------
 Write-Section 'Graphics caches'
