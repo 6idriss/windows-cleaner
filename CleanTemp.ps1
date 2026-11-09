@@ -45,7 +45,7 @@ function Clear-Target([string]$name, [string[]]$paths, [string]$filter = '*') {
                     Remove-Item -Force -ErrorAction SilentlyContinue
             }
             $after = Get-FolderSize $f.FullName
-            $freed += [math]::Max(0, $before - $after)
+            $freed += [math]::Max([double]0, [double]($before - $after))
         }
     }
     $script:total += $freed
@@ -158,7 +158,7 @@ if ($emptyBin) {
 
 # ---------- Summary ----------
 $freeAfter = (Get-PSDrive C).Free
-$diskGain = [math]::Max(0, $freeAfter - $freeBefore)
+$diskGain = [math]::Max([double]0, [double]$freeAfter - [double]$freeBefore)
 Write-Host ''
 Write-Host '======================================' -ForegroundColor Cyan
 Write-Host ('  Junk removed:      {0}' -f (Format-Size $script:total)) -ForegroundColor Green
