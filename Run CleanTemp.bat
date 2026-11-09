@@ -1,3 +1,3 @@
 @echo off
-:: Double-click to run CleanTemp once without installing.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0CleanTemp.ps1"
+:: Double-click to run 007 Clean Temp once without installing.
+start "" powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%~dp0CleanTemp.ps1"

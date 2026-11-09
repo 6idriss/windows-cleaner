@@ -15,6 +15,10 @@ $startLnk   = Join-Path ([Environment]::GetFolderPath('Programs')) 'Clean Temp.l
 
 if ($Uninstall) {
     Remove-Item -LiteralPath $desktopLnk, $startLnk -Force -ErrorAction SilentlyContinue
+    if (Get-ScheduledTask -TaskName 'CleanTemp Weekly' -ErrorAction SilentlyContinue) {
+        # Removing the weekly task needs admin rights.
+        Start-Process powershell.exe -Verb RunAs -Wait -WindowStyle Hidden -ArgumentList "-NoProfile -Command Unregister-ScheduledTask -TaskName 'CleanTemp Weekly' -Confirm:`$false"
+    }
     Remove-Item -LiteralPath $installDir -Recurse -Force -ErrorAction SilentlyContinue
     Write-Host 'CleanTemp uninstalled.' -ForegroundColor Green
     return
@@ -23,14 +27,18 @@ if ($Uninstall) {
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
 # Use the local copy if this runs from an extracted zip, otherwise download it.
-$local = if ($PSScriptRoot) { Join-Path $PSScriptRoot 'CleanTemp.ps1' } else { $null }
-if ($local -and (Test-Path -LiteralPath $local)) {
-    Copy-Item -LiteralPath $local -Destination $target -Force
-} else {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -Uri "$repoRaw/CleanTemp.ps1" -OutFile $target -UseBasicParsing
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+foreach ($file in 'CleanTemp.ps1', '007.ico') {
+    $dest  = Join-Path $installDir $file
+    $local = if ($PSScriptRoot) { Join-Path $PSScriptRoot $file } else { $null }
+    if ($local -and (Test-Path -LiteralPath $local)) {
+        Copy-Item -LiteralPath $local -Destination $dest -Force
+    } else {
+        Invoke-WebRequest -Uri "$repoRaw/$file" -OutFile $dest -UseBasicParsing
+    }
+    Unblock-File -LiteralPath $dest -ErrorAction SilentlyContinue
 }
-Unblock-File -LiteralPath $target -ErrorAction SilentlyContinue
+$icon = Join-Path $installDir '007.ico'
 
 # Keep a copy of this installer so uninstall works later.
 $selfCopy = Join-Path $installDir 'install.ps1'
@@ -41,14 +49,14 @@ if ($PSCommandPath -and (Test-Path -LiteralPath $PSCommandPath)) {
 }
 
 $ps   = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-$lnkArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$target`""
+$lnkArgs = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$target`""
 $ws   = New-Object -ComObject WScript.Shell
 foreach ($lnk in @($desktopLnk, $startLnk)) {
     $s = $ws.CreateShortcut($lnk)
     $s.TargetPath       = $ps
     $s.Arguments        = $lnkArgs
     $s.WorkingDirectory = $installDir
-    $s.IconLocation     = "$env:SystemRoot\System32\imageres.dll,50"
+    $s.IconLocation     = "$icon,0"
     $s.Description      = 'Delete temp files, caches and other junk'
     $s.Save()
 }
