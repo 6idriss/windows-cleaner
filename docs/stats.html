@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>007 Clean Temp · Stats</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.ico">
+<style>
+  :root{--bg:#0c0c0c;--panel:#151515;--line:#262626;--text:#ececec;--dim:#9a9a9a;--red:#d62828;--red2:#ff4a4a;--green:#5ac878}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 48px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+  header img{width:44px;height:44px}
+  h1{margin:0;font-size:24px}
+  header span{margin-left:auto;color:var(--dim);font-size:13px;text-align:right}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card b{display:block;font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+  .card span{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  .card small{display:block;color:var(--dim);font-size:13px;margin-top:2px}
+  .card.hl{border-color:rgba(214,40,40,.5);background:linear-gradient(135deg,#1c0d0d,#151515)}
+  h2{font-size:16px;margin:28px 0 10px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .chart{display:flex;align-items:flex-end;gap:3px;height:180px}
+  .bar{flex:1;background:var(--red);border-radius:3px 3px 0 0;min-height:2px;position:relative}
+  .bar:hover{background:var(--red2)}
+  .bar:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:6px;
+    background:#000;border:1px solid var(--line);padding:4px 8px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:2}
+  .axis{display:flex;justify-content:space-between;color:var(--dim);font-size:12px;margin-top:6px}
+  table{width:100%;border-collapse:collapse}
+  td,th{padding:9px 4px;border-bottom:1px solid var(--line);text-align:left}
+  th{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  td:last-child,th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:0}
+  .rel td:nth-child(2){color:var(--dim)}
+  .msg{background:rgba(214,40,40,.08);border:1px solid rgba(214,40,40,.3);border-radius:12px;padding:14px 16px;color:var(--dim)}
+  .msg code{color:var(--text)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:720px){.cards{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.card b{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><img src="logo.png" alt=""><h1>Clean Temp stats</h1><span id="updated">Loading…</span></header>
+
+  <div id="setup" class="msg" hidden>Usage stats are not connected yet. Deploy the worker in <code>stats/</code>, then put its address in <code>STATS_URL</code> at the bottom of this file. Download numbers below still work.</div>
+
+  <div class="cards">
+    <div class="card hl"><span>Users today</span><b id="today">–</b></div>
+    <div class="card hl"><span>Users this week</span><b id="week">–</b><small id="newWeek"></small></div>
+    <div class="card"><span>Users this month</span><b id="month">–</b></div>
+    <div class="card"><span>Total installs ever</span><b id="total">–</b><small>since usage count was added (v2.2.0)</small></div>
+    <div class="card"><span>Zip downloads</span><b id="downloads">–</b><small>all GitHub releases</small></div>
+    <div class="card"><span>Latest version</span><b id="latest">–</b></div>
+  </div>
+
+  <h2>Daily users · last 30 days</h2>
+  <div class="panel"><div class="chart" id="chart"></div><div class="axis"><span id="ax0"></span><span id="ax1"></span></div></div>
+
+  <div class="two">
+    <div><h2>Versions in use · last 30 days</h2><div class="panel"><table id="versions"><tr><th>Version</th><th>Users</th></tr></table></div></div>
+    <div><h2>Downloads per release</h2><div class="panel"><table id="releases" class="rel"><tr><th>Release</th><th>Date</th><th>Downloads</th></tr></table></div></div>
+  </div>
+</div>
+
+<script>
+  // ===== Settings =====
+  const REPO = '6idriss/windows-cleaner';
+  const STATS_URL = 'https://007-stats.YOUR-SUBDOMAIN.workers.dev/stats';
+
+  const $ = id => document.getElementById(id);
+  const n = v => (v ?? 0).toLocaleString('en-US');
+  const row = cells => '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`).then(r => r.json()).then(rel => {
+    let total = 0, rows = '';
+    rel.forEach(r => {
+      const d = r.assets.reduce((a, x) => a + x.download_count, 0); total += d;
+      rows += row([esc(r.tag_name), new Date(r.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), n(d)]);
+    });
+    $('downloads').textContent = n(total);
+    $('releases').insertAdjacentHTML('beforeend', rows || row(['No releases yet', '', '']));
+    const latest = rel.find(r => !r.draft && !r.prerelease); if (latest) $('latest').textContent = latest.tag_name;
+  }).catch(() => $('downloads').textContent = '—');
+
+  function load() {
+    if (STATS_URL.includes('YOUR-SUBDOMAIN')) { $('setup').hidden = false; $('updated').textContent = 'Usage stats not connected'; return; }
+    fetch(STATS_URL, { cache: 'no-store' }).then(r => r.json()).then(s => {
+      ['today', 'week', 'month', 'total'].forEach(k => $(k).textContent = n(s[k]));
+      $('newWeek').textContent = `${n(s.newWeek)} new this week`;
+      $('updated').textContent = 'Updated ' + new Date(s.updated).toLocaleTimeString();
+
+      // Fill the last 30 days, including days with 0 users.
+      const map = Object.fromEntries((s.daily || []).map(d => [d.day, d.users]));
+      const days = [...Array(30)].map((_, i) => new Date(Date.now() - (29 - i) * 864e5).toISOString().slice(0, 10));
+      const max = Math.max(1, ...days.map(d => map[d] || 0));
+      $('chart').innerHTML = days.map(d => {
+        const v = map[d] || 0;
+        return `<div class="bar" style="height:${(v / max) * 100}%" data-tip="${d}: ${v} user${v === 1 ? '' : 's'}"></div>`;
+      }).join('');
+      $('ax0').textContent = days[0]; $('ax1').textContent = 'today';
+
+      const t = $('versions'); t.querySelectorAll('tr:not(:first-child)').forEach(e => e.remove());
+      t.insertAdjacentHTML('beforeend', (s.versions || []).map(v => row(['v' + esc(v.version), n(v.users)])).join('') || row(['No users yet', '0']));
+    }).catch(() => $('updated').textContent = 'Could not reach the stats worker');
+  }
+  load(); setInterval(load, 60000);
+</script>
+</body>
+</html>

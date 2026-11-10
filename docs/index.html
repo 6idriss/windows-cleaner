@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>007 Clean Temp · free Windows junk cleaner</title>
+<meta name="description" content="A free, one-click Windows junk cleaner by 007. Scan first, pick what to clean, no ads, no sign-up.">
+<meta property="og:title" content="007 Clean Temp">
+<meta property="og:description" content="Free one-click Windows junk cleaner. Scan first, pick what to clean. No ads, no sign-up.">
+<meta property="og:image" content="logo.png">
+<meta name="theme-color" content="#0c0c0c">
+<link rel="icon" href="favicon.ico">
+<style>
+  /* ===== Settings: change these if your links change ===== */
+  :root{
+    --bg:#0c0c0c; --panel:#151515; --panel2:#1b1b1b; --line:#262626;
+    --text:#ececec; --dim:#9a9a9a; --red:#d62828; --red2:#ff4a4a; --green:#5ac878;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  /* nav */
+  nav{position:sticky;top:0;z-index:10;background:rgba(12,12,12,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.06em;text-decoration:none}
+  .brand img{width:30px;height:30px}
+  .links{display:flex;gap:18px;margin-left:8px;font-size:14px;color:var(--dim)}
+  .links a{text-decoration:none}.links a:hover{color:var(--text)}
+  .navbtn{margin-left:auto;background:var(--red);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:8px 16px;border-radius:9px}
+  .navbtn:hover{background:var(--red2)}
+  /* hero */
+  .hero{position:relative;overflow:hidden;padding:72px 0 56px}
+  .hero::before{content:"";position:absolute;right:-180px;top:-120px;width:640px;height:640px;border-radius:50%;
+    background:radial-gradient(circle,rgba(214,40,40,.35),rgba(214,40,40,0) 65%);pointer-events:none}
+  .hero .wrap{display:grid;grid-template-columns:1.25fr .75fr;gap:40px;align-items:center;position:relative}
+  .pill{display:inline-flex;align-items:center;gap:8px;font:600 12px/1 ui-monospace,Consolas,monospace;letter-spacing:.08em;
+    color:var(--dim);border:1px solid var(--line);background:var(--panel);padding:8px 12px;border-radius:999px;text-transform:uppercase}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+  h1{font-size:clamp(38px,6vw,64px);line-height:1.04;margin:18px 0 14px;letter-spacing:-.02em}
+  h1 em{font-style:normal;color:var(--red2)}
+  .lead{font-size:18px;color:var(--dim);max-width:560px;margin:0 0 26px}
+  .lead b{color:var(--text)}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;text-decoration:none;font-weight:700;
+    font-size:17px;padding:15px 24px;border-radius:12px;box-shadow:0 8px 30px rgba(214,40,40,.35);transition:transform .15s,background .15s}
+  .btn:hover{background:var(--red2);transform:translateY(-1px)}
+  .btn svg{width:20px;height:20px}
+  .btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none;color:var(--text)}
+  .btn.ghost:hover{background:var(--panel2)}
+  .meta{margin-top:14px;font-size:13px;color:var(--dim)}
+  .counters{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .counter{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:130px}
+  .counter b{display:block;font-size:24px;line-height:1.1}
+  .counter span{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .logo-big{justify-self:center;width:min(300px,70vw);filter:drop-shadow(0 20px 60px rgba(214,40,40,.4))}
+  /* sections */
+  section{padding:56px 0;border-top:1px solid var(--line)}
+  h2{font-size:30px;margin:0 0 8px;letter-spacing:-.01em}
+  .sub{color:var(--dim);margin:0 0 28px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .card h3{margin:0 0 6px;font-size:17px}
+  .card p{margin:0;color:var(--dim);font-size:15px}
+  .ico{width:36px;height:36px;border-radius:10px;background:rgba(214,40,40,.14);color:var(--red2);display:grid;place-items:center;margin-bottom:12px}
+  .ico svg{width:20px;height:20px}
+  /* install */
+  .install{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .install>*,.hero .wrap>*{min-width:0}
+  .step{display:flex;gap:12px;margin:0 0 12px;color:var(--dim)}
+  .step b{color:var(--text)}
+  .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--text)}
+  .code{display:flex;align-items:center;gap:10px;background:#0a0a0a;border:1px solid var(--line);border-radius:10px;padding:12px 12px 12px 14px;margin:10px 0}
+  .code code{flex:1;min-width:0;font:13px/1.5 ui-monospace,Consolas,monospace;color:#f3f3f3;overflow-x:auto;white-space:nowrap}
+  .copy{flex:none;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
+  .copy:hover{border-color:var(--red)}
+  .note{font-size:14px;color:var(--dim);background:rgba(214,40,40,.07);border:1px solid rgba(214,40,40,.25);border-radius:10px;padding:12px 14px;margin-top:12px}
+  /* table */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius)}
+  table{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--panel2);font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  tr:last-child td{border-bottom:0}
+  td:first-child{font-weight:600;white-space:nowrap}
+  .yes{color:var(--green);font-weight:600}.no{color:var(--dim)}
+  .never{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .tag{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+  .tag::before{content:"✕ ";color:var(--red2);font-weight:700}
+  /* faq */
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 18px;margin-bottom:10px}
+  summary{cursor:pointer;list-style:none;padding:16px 0;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--red2);font-size:20px;line-height:1}
+  details[open] summary::after{content:"–"}
+  details p,details ul{margin:0 0 16px;color:var(--dim)}
+  details code{font:13px ui-monospace,Consolas,monospace;background:#0a0a0a;border:1px solid var(--line);padding:1px 6px;border-radius:5px;color:var(--text)}
+  /* changelog */
+  .log{border-left:2px solid var(--line);margin-left:6px;padding-left:22px}
+  .entry{position:relative;margin-bottom:22px}
+  .entry::before{content:"";position:absolute;left:-29px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--red)}
+  .entry h3{margin:0;font-size:17px}.entry h3 small{color:var(--dim);font-weight:400;margin-left:8px}
+  .entry ul{margin:6px 0 0;padding-left:18px;color:var(--dim)}
+  /* community */
+  .community{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1a0b0b,#151515);border:1px solid rgba(214,40,40,.35);border-radius:18px;padding:28px}
+  .community h2{margin:0 0 4px}.community p{margin:0;color:var(--dim)}
+  .discord{background:#5865f2;box-shadow:0 8px 30px rgba(88,101,242,.35)}.discord:hover{background:#6d78ff}
+  footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--dim);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between}
+  footer a{text-decoration:none}footer a:hover{color:var(--text)}
+  @media (max-width:860px){
+    .hero .wrap,.install{grid-template-columns:1fr}
+    .logo-big{grid-row:1;width:160px}
+    .grid{grid-template-columns:1fr 1fr}
+    .links{display:none}
+  }
+  @media (max-width:560px){.grid{grid-template-columns:1fr}.hero{padding-top:44px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#"><img src="logo.png" alt="">CLEAN TEMP</a>
+    <div class="links">
+      <a href="#features">Features</a><a href="#install">Install</a><a href="#cleans">What it cleans</a><a href="#faq">FAQ</a><a href="#changelog">Changelog</a>
+    </div>
+    <a class="navbtn" href="https://github.com/6idriss/windows-cleaner/releases/latest/download/CleanTemp.zip">Download</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="pill"><span class="dot"></span><span id="pillText">100% free · no ads · no sign-up</span></span>
+      <h1>Clean your PC in <em>one click.</em></h1>
+      <p class="lead">007 Clean Temp scans temp files, caches, crash dumps and other junk, shows how much space each one uses, and deletes <b>only what you pick</b>. Your history, passwords and files are never touched.</p>
+      <div class="cta">
+        <a class="btn" id="dlBtn" href="https://github.com/6idriss/windows-cleaner/releases/latest/download/CleanTemp.zip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg>
+          Download <span id="dlVer">CleanTemp.zip</span>
+        </a>
+        <a class="btn ghost" href="#install">One-line install</a>
+      </div>
+      <div class="meta">Windows 10 &amp; 11 · tiny zip · open source (MIT) · <a href="https://github.com/6idriss/windows-cleaner">view the code</a></div>
+      <div class="counters">
+        <div class="counter"><b id="cDownloads">–</b><span>Downloads</span></div>
+        <div class="counter" id="usersBox" hidden><b id="cUsers">–</b><span>Users this week</span></div>
+        <div class="counter"><b id="cVersion">–</b><span>Latest version</span></div>
+      </div>
+    </div>
+    <img class="logo-big" src="logo.png" alt="007 Clean Temp logo">
+  </div>
+</header>
+
+<main>
+<section id="features">
+  <div class="wrap">
+    <h2>Why people use it</h2>
+    <p class="sub">One readable PowerShell script. No background service, no bloat.</p>
+    <div class="grid">
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><h3>Scan first</h3><p>See the size of every item before anything is deleted.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg></div><h3>Pick what to clean</h3><p>Every item has a checkbox. Your choices are saved for next time.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h4l3-8 4 16 3-8h2"/></svg></div><h3>Live progress</h3><p>A progress bar shows each item and how much space it freed.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><h3>Weekly auto-clean</h3><p>One checkbox runs a silent clean every Sunday at 12:00. It never empties the Recycle Bin.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></div><h3>Safe by default</h3><p>Browser history, cookies, passwords and your files are never touched. Riskier items start unchecked.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg></div><h3>Full log</h3><p>Every clean is saved to a log you can open from the app.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install</h2>
+    <p class="sub">Two ways. Both add a <b>Clean Temp</b> shortcut with the 007 icon to your Desktop and Start Menu.</p>
+    <div class="install">
+      <div class="card">
+        <h3>Option 1 · one-line install</h3>
+        <p style="margin-bottom:6px">Open <b>PowerShell</b> and paste:</p>
+        <div class="code"><code id="cmd">irm https://raw.githubusercontent.com/6idriss/windows-cleaner/main/install.ps1 | iex</code><button class="copy" data-copy="cmd">Copy</button></div>
+        <p>Press Enter. Done.</p>
+      </div>
+      <div class="card">
+        <h3>Option 2 · download the zip</h3>
+        <div class="step"><span class="num">1</span><span>Download <a href="https://github.com/6idriss/windows-cleaner/releases/latest/download/CleanTemp.zip"><b>CleanTemp.zip</b></a>.</span></div>
+        <div class="step"><span class="num">2</span><span>Right-click it and choose <b>Extract All</b>.</span></div>
+        <div class="step"><span class="num">3</span><span>Double-click <b>Install.bat</b>, or <b>Run CleanTemp.bat</b> to run it once without installing.</span></div>
+      </div>
+    </div>
+    <div class="note">If Windows SmartScreen warns you, click <b>More info</b>, then <b>Run anyway</b>. This happens because the files are not code-signed. The code is open, so you can read every line on GitHub first.</div>
+  </div>
+</section>
+
+<section id="cleans">
+  <div class="wrap">
+    <h2>What it cleans</h2>
+    <p class="sub">Everything is shown with its size before you clean.</p>
+    <div class="tablewrap">
+      <table>
+        <tr><th>Area</th><th>Items</th><th>Checked by default</th></tr>
+        <tr><td>Windows</td><td>User temp, Windows temp, Prefetch, thumbnail &amp; icon cache, Internet cache, error reports, crash dumps, MEMORY.DMP, CBS/DISM logs, font cache, Windows Update &amp; Delivery Optimization cache</td><td class="yes">Yes</td></tr>
+        <tr><td>Windows</td><td>Recent files list</td><td class="no">No</td></tr>
+        <tr><td>Graphics</td><td>DirectX, NVIDIA and AMD shader caches</td><td class="yes">Yes</td></tr>
+        <tr><td>Browsers</td><td>Cache only: Chrome, Edge, Brave, Opera, Opera GX, Firefox</td><td class="yes">Yes</td></tr>
+        <tr><td>Apps</td><td>Discord, Spotify, Teams, Steam &amp; Epic web cache, VS Code</td><td class="yes">Yes</td></tr>
+        <tr><td>Apps</td><td>Developer caches: npm, pip, Yarn, NuGet</td><td class="no">No</td></tr>
+        <tr><td>Extras</td><td>Flush DNS cache</td><td class="yes">Yes</td></tr>
+        <tr><td>Extras</td><td>Empty Recycle Bin</td><td class="no">No</td></tr>
+      </table>
+    </div>
+    <h3 style="margin:28px 0 0">It never touches</h3>
+    <div class="never">
+      <span class="tag">Browser history</span><span class="tag">Cookies</span><span class="tag">Passwords</span><span class="tag">Saved logins</span><span class="tag">Your documents</span><span class="tag">Spotify offline downloads</span>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>FAQ</h2>
+    <p class="sub">Stuck? It's probably here.</p>
+    <details><summary>Is it really free?</summary><p>Yes. No paywall, no ads, no sign-up. The code is MIT licensed on GitHub.</p></details>
+    <details><summary>Windows says "Windows protected your PC". Is it a virus?</summary><p>No. SmartScreen warns about any app that isn't code-signed. Click <b>More info</b>, then <b>Run anyway</b>. Clean Temp is a single PowerShell script you can read on GitHub before running.</p></details>
+    <details><summary>Why does it ask for administrator rights?</summary><p>Windows temp, Prefetch and Windows Update folders can only be cleaned as admin. It doesn't change any system settings.</p></details>
+    <details><summary>Can I get deleted files back?</summary><p>No. Cleaned files skip the Recycle Bin. That's why Clean Temp only deletes junk and shows you everything before you press CLEAN.</p></details>
+    <details><summary>My games or apps open slower after cleaning.</summary><p>Normal, and only once. Shader and app caches rebuild the first time you open them again.</p></details>
+    <details><summary>Some items said "nothing to clean" or didn't free everything.</summary><p>Files that are in use are skipped. Close your browsers, Discord and Spotify, then clean again for a full clean.</p></details>
+    <details id="privacy"><summary>Does Clean Temp send any data?</summary>
+      <p>Only an <b>anonymous usage count</b>, at most once a day, so 007 can see how many people use it. It sends exactly three things:</p>
+      <ul><li>a random install ID (made on your PC, not linked to you)</li><li>the app version, like <code>2.2.0</code></li><li>whether it opened normally or ran as the weekly auto-clean</li></ul>
+      <p>No name, no files, no list of what you cleaned, nothing about your PC. To turn it off, untick <b>Send an anonymous daily usage count</b> at the bottom of the app.</p>
+    </details>
+    <details><summary>How do I uninstall it?</summary><p>Double-click <b>Uninstall.bat</b> from the zip, or run <code>powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\CleanTemp\install.ps1" -Uninstall</code>. This also removes the weekly task.</p></details>
+    <details><summary>Still stuck?</summary><p>Join the Discord and open a ticket. Someone will help you.</p></details>
+  </div>
+</section>
+
+<section id="changelog">
+  <div class="wrap">
+    <h2>Changelog</h2>
+    <p class="sub">All versions are on <a href="https://github.com/6idriss/windows-cleaner/releases">GitHub Releases</a>.</p>
+    <div class="log">
+      <div class="entry"><h3>v2.2.0 <small>Nov 2026</small></h3><ul><li>Anonymous daily usage count, with an off switch in the app</li><li>Settings keep your choices when you update</li></ul></div>
+      <div class="entry"><h3>v2.1.0 <small>Nov 9, 2026</small></h3><ul><li>New 007 "Sweep gauge" logo</li></ul></div>
+      <div class="entry"><h3>v2.0.0 <small>Nov 9, 2026</small></h3><ul><li>Full app window with the 007 logo</li><li>Scan preview with sizes, pick what to clean</li><li>Weekly auto-clean</li></ul></div>
+      <div class="entry"><h3>v1.0.x <small>Nov 9, 2026</small></h3><ul><li>First release, fix for folders over 2 GB, quieter service warnings</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="community">
+      <div><h2>Join 007s community</h2><p>Help, updates, wallpapers and everything else 007 makes. All free.</p></div>
+      <a class="btn discord" href="https://discord.gg/FjSraGbJPa">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.3 18.3 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.5C.6 9 0 13.5.3 18a19.9 19.9 0 0 0 6 3l1.3-2a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12 0l.5.4a13 13 0 0 1-2 1l1.3 2a19.8 19.8 0 0 0 6-3c.4-5.2-.8-9.7-3.6-13.6ZM8.5 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm7 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>
+        Join the Discord
+      </a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 007 · Clean Temp is free and open source (MIT)</span>
+    <span><a href="https://github.com/6idriss/windows-cleaner">GitHub</a> · <a href="https://github.com/6idriss/windows-cleaner/releases">Releases</a> · <a href="#privacy">Privacy</a> · <a href="https://discord.gg/FjSraGbJPa">Discord</a></span>
+  </div>
+</footer>
+
+<script>
+  // ===== Settings =====
+  const REPO = '6idriss/windows-cleaner';
+  // After deploying the stats worker, put its address here to show "Users this week":
+  const STATS_URL = 'https://007-stats.YOUR-SUBDOMAIN.workers.dev/stats';
+
+  const fmt = n => n >= 10000 ? (n / 1000).toFixed(n >= 100000 ? 0 : 1) + 'k' : n.toLocaleString('en-US');
+
+  fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(rel => {
+      const total = rel.reduce((s, r) => s + r.assets.reduce((a, x) => a + x.download_count, 0), 0);
+      document.getElementById('cDownloads').textContent = fmt(total);
+      const latest = rel.find(r => !r.draft && !r.prerelease);
+      if (latest) {
+        document.getElementById('cVersion').textContent = latest.tag_name;
+        document.getElementById('dlVer').textContent = latest.tag_name;
+        document.getElementById('pillText').textContent = latest.tag_name + ' is out · 100% free · no ads';
+      }
+    })
+    .catch(() => { document.getElementById('cDownloads').textContent = '—'; });
+
+  if (!STATS_URL.includes('YOUR-SUBDOMAIN')) {
+    fetch(STATS_URL).then(r => r.json()).then(s => {
+      document.getElementById('cUsers').textContent = fmt(s.week);
+      document.getElementById('usersBox').hidden = false;
+    }).catch(() => {});
+  }
+
+  document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () => {
+    const text = document.getElementById(b.dataset.copy).textContent;
+    const done = () => { b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy', 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done);
+    else { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); done(); }
+  }));
+</script>
+</body>
+</html>
