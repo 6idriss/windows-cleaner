@@ -15,7 +15,7 @@ $TaskName   = 'CleanTemp Weekly'
 # Anonymous usage count. Sends only a random install ID, the app version and
 # "gui"/"auto", at most once per day. Turn it off with the checkbox in the app.
 # Set this to your Cloudflare Worker address after you deploy it (see stats/README.md).
-$PingUrl    = 'https://007-stats.YOUR-SUBDOMAIN.workers.dev/ping'
+$PingUrl    = 'https://007-stats.6idriss.workers.dev/ping'
 
 # ---------- Self-elevate to admin ----------
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
